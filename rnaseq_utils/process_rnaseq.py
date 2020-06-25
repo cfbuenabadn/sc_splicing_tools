@@ -92,7 +92,9 @@ if __name__ == '__main__':
         
         star_counts[sample_name] = star_tab[strand]
         
-        log_df = pd.DataFrame(alignment_dir + sample + '/star_output/Log.final.out', sep='\t', names=['names', 'value'])
+        
+        log_df = pd.read_csv(alignment_dir + sample + '/star_output/Log.final.out', sep='\t', names=['names', 'value'])
+        
         meta_list = [log_df.loc[4, 'value'],
              log_df.loc[5, 'value'],
              log_df.loc[7, 'value'],
