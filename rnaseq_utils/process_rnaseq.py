@@ -77,19 +77,22 @@ if __name__ == '__main__':
     for sample in tqdm(samples):
         tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'genes.results'), 
                             sep = '\t', index_col=0)
-        table_el[sample] = tabla['effective_length']
-        table_counts[sample] = tabla['expected_count']
-        table_tpm[sample] = tabla['TPM']
+        
+        sample_name = sample.split('_')[0]
+        
+        table_el[sample_name] = tabla['effective_length']
+        table_counts[sample_name] = tabla['expected_count']
+        table_tpm[sample_name] = tabla['TPM']
         
         star_tab = pd.read_csv(star_dir + sample + '/star_output/ReadsPerGene.out.tab', 
                            names = ['no_specific', 'first_strand', 'reverse_strand'],
                            sep='\t', index_col=0, skiprows=4)
         
-        star_counts[sample] = star_tab[strand]
+        star_counts[sample_name] = star_tab[strand]
         
         if args.move_SJ:
             SJ_tab = star_dir + sample + '/star_output/SJ.out.tab'
-            SJ_tab_out = SJ_dir + sample + '.SJ.out.tab'
+            SJ_tab_out = SJ_dir + sample_name + '.SJ.out.tab'
             sp.run('cp {SJ} {out}'.format(SJ=SJ_tab, out=SJ_tab_out), shell=True)
     
         
