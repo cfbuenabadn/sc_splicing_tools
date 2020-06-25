@@ -132,7 +132,7 @@ if __name__ == '__main__':
     
     mart = pd.read_csv(args.gene_symbols[0], sep='\t', index_col=0)
     mart_clean = mart.drop_duplicates()
-    mart_clean = clean.groupby(clean.index).first()
+    mart_clean = mart_clean.groupby(mart_clean.index).first()
 
     good_genes = [x for x in table_tpm.index if x in mart_clean.index]
     
