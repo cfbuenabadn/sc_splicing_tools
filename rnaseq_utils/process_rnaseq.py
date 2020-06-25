@@ -74,6 +74,8 @@ if __name__ == '__main__':
     table_tpm = pd.DataFrame()
     star_counts = pd.DataFrame()
     
+    meta_table = pd.DataFrame()
+    
     for sample in tqdm(samples):
         tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'genes.results'), 
                             sep = '\t', index_col=0)
@@ -90,11 +92,36 @@ if __name__ == '__main__':
         
         star_counts[sample_name] = star_tab[strand]
         
+        log_df = pd.DataFrame(alignment_dir + sample + '/star_output/Log.final.out', sep='\t', names=['names', 'value'])
+        meta_list = [log_df.loc[4, 'value'],
+             log_df.loc[5, 'value'],
+             log_df.loc[7, 'value'],
+             log_df.loc[8, 'value'][:-1],
+             log_df.loc[9, 'value'],
+             log_df.loc[10, 'value'],
+             log_df.loc[11, 'value'],
+             log_df.loc[12, 'value'],
+             log_df.loc[13, 'value'],
+             log_df.loc[14, 'value'],
+             log_df.loc[15, 'value'],
+             log_df.loc[22, 'value'],
+             log_df.loc[23, 'value'][:-1],
+             log_df.loc[24, 'value'],
+             log_df.loc[25, 'value'][:-1]]
+        
+        meta_table[sample_name] = meta_list
+        
         if args.move_SJ:
             SJ_tab = alignment_dir + sample + '/star_output/SJ.out.tab'
             SJ_tab_out = SJ_dir + sample_name + '.SJ.out.tab'
             sp.run('cp {SJ} {out}'.format(SJ=SJ_tab, out=SJ_tab_out), shell=True)
     
+        
+    meta_table.index = meta_idx = ['input_reads', 'read_len', 'uniquely_mapped', 'unique_percent', 'map_len', 'splice_junctions',
+            'annotated_SJ', 'GT/AG', 'GC/AG', 'AT/AC', 'non_canonical', 'multimap_reads', 'multimap_percent',
+            'unmapped_reads', 'unmapped_percent']
+    
+    meta_table.to_csv(out_dir + '/star_meta.tab', sep='\t', header=True, index=True)
         
     table_el.index = [x.split('.')[0] for x in table_el.index]
     table_counts.index = [x.split('.')[0] for x in table_counts.index]
