@@ -126,7 +126,7 @@ if __name__ == '__main__':
     table_el.index = [x.split('.')[0] for x in table_el.index]
     table_counts.index = [x.split('.')[0] for x in table_counts.index]
     table_tpm.index = [x.split('.')[0] for x in table_tpm.index]
-    star_counts.index = [x.split('.')[0] for x in star_counts_tab.index]
+    star_counts.index = [x.split('.')[0] for x in star_counts.index]
     
     mart = pd.read_csv(args.gene_symbols[0], sep='\t', index_col=0)
     mart_clean = mart.drop_duplicates()
