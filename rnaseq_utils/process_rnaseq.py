@@ -72,6 +72,12 @@ if __name__ == '__main__':
     table_el = pd.DataFrame()
     table_counts = pd.DataFrame()
     table_tpm = pd.DataFrame()
+    ###
+    iso_table_el = pd.DataFrame()
+    iso_table_counts = pd.DataFrame()
+    iso_table_tpm = pd.DataFrame()
+    iso_table_psi = pd.DataFrame()
+    ###
     star_counts = pd.DataFrame()
     
     meta_table = pd.DataFrame()
@@ -85,6 +91,19 @@ if __name__ == '__main__':
         table_el[sample_name] = tabla['effective_length']
         table_counts[sample_name] = tabla['expected_count']
         table_tpm[sample_name] = tabla['TPM']
+        
+        
+        ###
+        iso_tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'isoforms.results'), 
+                            sep = '\t', index_col=0)
+        
+        sample_name = sample.split('_')[0]
+        
+        iso_table_el[sample_name] = iso_tabla['effective_length']
+        iso_table_counts[sample_name] = iso_tabla['expected_count']
+        iso_table_tpm[sample_name] = iso_tabla['TPM']
+        iso_table_psi[sample_name] = iso_tabla['IsoPct']
+        ###
         
         star_tab = pd.read_csv(alignment_dir + sample + '/star_output/ReadsPerGene.out.tab', 
                            names = ['no_specific', 'first_strand', 'reverse_strand'],
@@ -156,9 +175,17 @@ if __name__ == '__main__':
     star_filtered.columns = [x.split('_')[0] for x in star_filtered.columns]
     star_filtered.to_csv(out_dir + '/star_counts.tab', sep='\t', header=True, index=True)
     
+    iso_table_el.columns = [x.split('_')[0] for x in iso_table_el.columns]
+    iso_table_el.to_csv(out_dir + '/isoform_effective_length.tab', sep='\t', header=True, index=True)
     
-
+    iso_table_counts.columns = [x.split('_')[0] for x in iso_table_counts.columns]
+    iso_table_counts.to_csv(out_dir + '/rsem_isoform_counts.tab', sep='\t', header=True, index=True)
     
+    iso_table_tpm.columns = [x.split('_')[0] for x in iso_table_tpm.columns]
+    iso_table_tpm.to_csv(out_dir + '/rsem_isoform_tpm.tab', sep='\t', header=True, index=True)
+    
+    iso_table_psi.columns = [x.split('_')[0] for x in iso_table_psi.columns]
+    iso_table_psi.to_csv(out_dir + '/rsem_isoform_psi.tab', sep='\t', header=True, index=True)
     
     
     
