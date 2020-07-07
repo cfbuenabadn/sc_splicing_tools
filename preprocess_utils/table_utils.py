@@ -124,7 +124,7 @@ def transform_cell(cell, plot_hist, correct_high, bw_method, adjust_high):
     return cell_transcript_counts#, molecules_in_cell
 
 
-def transform_tpm_to_counts(tpm_dataset, plot_hist = True, correct_high = True, bw_method='scott', adjust_high = False):
+def tpm2mrna(tpm_dataset, plot_hist = True, correct_high = True, bw_method='scott', adjust_high = False):
     mrna_counts = pd.DataFrame()
     mrna_counts_per_cell = []
     cells = tpm_dataset.columns
