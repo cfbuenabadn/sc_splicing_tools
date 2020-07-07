@@ -4,6 +4,7 @@ import subprocess as sp
 import os
 from scipy.stats import gaussian_kde
 from numpy import random as r
+from tqdm import tqdm
 
 def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False):
     '''
@@ -71,20 +72,17 @@ def get_psi_table(SJ_table_name, minJR=5, minCell=20, drop_duplicates = False):
     I2_table = I2_table.loc[filtered_events]
     SE_table = SE_table.loc[filtered_events]
     
-    
     PSI_table = (I1_table + I2_table) /(2*SE_table + I1_table + I2_table)
     total_counts = SE_table + I1_table + I2_table
 
     return I1_table, I2_table, SE_table, PSI_table, total_counts
 
 
-####
-
 def normalize_equation(cell, moda):
     n = np.sum(np.log10(cell) <= moda)
     interval = np.sum(cell.loc[np.log10(cell) <= moda])/np.sum(cell)
     return n/interval
-    
+
 
 def get_transcripts_per_cell(cell, plot_hist, correct_high, bw_method, adjust_high):
     z = gaussian_kde(np.log10(cell), bw_method)
