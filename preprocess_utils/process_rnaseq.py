@@ -155,23 +155,25 @@ if __name__ == '__main__':
 
     good_genes = [x for x in table_tpm.index if x in mart_clean.index]
     
+    symbol_name = mart_clean.columns[1]
+
     table_filtered_el = table_el.loc[good_genes]
-    table_filtered_el.index = mart_clean.loc[good_genes].mgi_symbol
+    table_filtered_el.index = mart_clean.loc[good_genes, symbol_name]
     table_filtered_el.columns = [x.split('_')[0] for x in table_filtered_el.columns]
     table_filtered_el.to_csv(out_dir + '/effective_length.tab', sep='\t', header=True, index=True)
     
     table_filtered_counts = table_counts.loc[good_genes]
-    table_filtered_counts.index = mart_clean.loc[good_genes].mgi_symbol
+    table_filtered_counts.index = mart_clean.loc[good_genes, symbol_name]
     table_filtered_counts.columns = [x.split('_')[0] for x in table_filtered_counts.columns]
     table_filtered_counts.to_csv(out_dir + '/rsem_gene_counts.tab', sep='\t', header=True, index=True)
     
     table_filtered_tpm = table_tpm.loc[good_genes]
-    table_filtered_tpm.index = mart_clean.loc[good_genes].mgi_symbol
+    table_filtered_tpm.index = mart_clean.loc[good_genes, symbol_name]
     table_filtered_tpm.columns = [x.split('_')[0] for x in table_filtered_tpm.columns]
     table_filtered_tpm.to_csv(out_dir + '/rsem_gene_tpm.tab', sep='\t', header=True, index=True)
     
     star_filtered = star_counts.loc[good_genes]
-    star_filtered.index = mart_clean.loc[good_genes].mgi_symbol
+    star_filtered.index = mart_clean.loc[good_genes, symbol_name]
     star_filtered.columns = [x.split('_')[0] for x in star_filtered.columns]
     star_filtered.to_csv(out_dir + '/star_counts.tab', sep='\t', header=True, index=True)
     
