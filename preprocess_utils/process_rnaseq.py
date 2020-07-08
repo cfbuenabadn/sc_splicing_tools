@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
     good_genes = [x for x in table_tpm.index if x in mart_clean.index]
     
-    symbol_name = mart_clean.columns[1]
+    symbol_name = mart_clean.columns[0]
 
     table_filtered_el = table_el.loc[good_genes]
     table_filtered_el.index = mart_clean.loc[good_genes, symbol_name]
