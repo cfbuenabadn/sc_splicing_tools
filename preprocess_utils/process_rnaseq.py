@@ -80,7 +80,7 @@ if __name__ == '__main__':
     out_dir = args.out_dir[0]
     strand = args.strand[0]
     effective_length = args.effective_length[0]
-    if args.gzipped_files[0]:
+    if args.gzipped_files:
         gz = '.gz'
     else:
         gz = ''
