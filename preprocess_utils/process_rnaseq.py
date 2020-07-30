@@ -93,7 +93,7 @@ if __name__ == '__main__':
     
     cell_chunks = split_samples(cells, args.split_cells) 
     
-    print('Working on ' + str(args.split_cells[0]) + ' chunks')
+    #print('Working on ' + str(args.split_cells) + ' chunks')
     
     counter_chunk = 1
     
