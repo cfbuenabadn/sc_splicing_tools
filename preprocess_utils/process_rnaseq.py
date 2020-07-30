@@ -79,7 +79,7 @@ if __name__ == '__main__':
     alignment_dir = args.alignment_dir[0]
     out_dir = args.out_dir[0]
     strand = args.strand[0]
-    effective_length = args.effective_length[0]
+    effective_length = args.effective_length
     if args.gzipped_files:
         gz = '.gz'
     else:
