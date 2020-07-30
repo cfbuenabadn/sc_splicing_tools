@@ -52,6 +52,9 @@ parser.add_argument('-sj', '--move_SJ',  action='store_true',
 parser.add_argument('-el', '--effective_length',  action='store_true',
                    help='collect effective length tables')
 
+parser.add_argument('-gz', '--gzipped_files', action='store_true',
+                   help='input files are zipped')
+
 parser.add_argument('-se', '--skipped_exons', type=str, nargs=1, required=False,
                    help='skipped exons bed file')
 
@@ -77,6 +80,10 @@ if __name__ == '__main__':
     out_dir = args.out_dir[0]
     strand = args.strand[0]
     effective_length = args.effective_length[0]
+    if args.gzipped_files[0]:
+        gz = '.gz'
+    else:
+        gz = ''
     
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
@@ -176,14 +183,14 @@ if __name__ == '__main__':
             iso_table_psi[sample_name] = iso_tabla['IsoPct']
             ###
 
-            star_tab = pd.read_csv(alignment_dir + sample + '/star_output/ReadsPerGene.out.tab', 
+            star_tab = pd.read_csv(alignment_dir + sample + '/star_output/ReadsPerGene.out.tab'+gz, 
                                names = ['no_specific', 'first_strand', 'reverse_strand'],
                                sep='\t', index_col=0, skiprows=4)
 
             star_counts[sample_name] = star_tab[strand]
 
 
-            log_df = pd.read_csv(alignment_dir + sample + '/star_output/Log.final.out', sep='\t', names=['names', 'value'])
+            log_df = pd.read_csv(alignment_dir + sample + '/star_output/Log.final.out'+gz, sep='\t', names=['names', 'value'])
 
             meta_list = [log_df.loc[4, 'value'],
                  log_df.loc[5, 'value'],
@@ -204,13 +211,13 @@ if __name__ == '__main__':
             meta_table[sample_name] = meta_list
 
             if args.move_SJ:
-                SJ_tab = alignment_dir + sample + '/star_output/SJ.out.tab'
+                SJ_tab = alignment_dir + sample + '/star_output/SJ.out.tab'+gz
                 SJ_tab_out = SJ_dir + sample_name + '.SJ.out.tab'
                 sp.run('cp {SJ} {out}'.format(SJ=SJ_tab, out=SJ_tab_out), shell=True)
 
             else:
 
-                SJ_table = alignment_dir + sample + '/star_output/SJ.out.tab'
+                SJ_table = alignment_dir + sample + '/star_output/SJ.out.tab'+gz
                 with open(SJ_table, 'r') as SJ_file:
                     for row in SJ_file:
                         sj = row.rstrip().split('\t')
@@ -344,29 +351,29 @@ if __name__ == '__main__':
         
         counter_chunk += 1
 
-#     if args.split_cells[0] == 1:
+    if args.split_cells[0] == 1:
         
-#         sp.run('mv ' + out_dir + '/rsem_isoform_psi_1.tab ' + out_dir + '/rsem_isoform_psi.tab', shell=True)
+        sp.run('mv ' + out_dir + '/rsem_isoform_psi_1.tab.gz ' + out_dir + '/rsem_isoform_psi.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/rsem_isoform_tpm_1.tab ' + out_dir + '/rsem_isoform_tpm.tab', shell=True)
+        sp.run('mv ' + out_dir + '/rsem_isoform_tpm_1.tab.gz ' + out_dir + '/rsem_isoform_tpm.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/rsem_isoform_counts_1.tab ' + out_dir + '/rsem_isoform_counts.tab', shell=True)
+        sp.run('mv ' + out_dir + '/rsem_isoform_counts_1.tab.gz ' + out_dir + '/rsem_isoform_counts.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/rsem_isoform_effective_length_1.tab ' + out_dir + '/rsem_isoform_effective_length.tab', shell=True)
+        #sp.run('mv ' + out_dir + '/rsem_isoform_effective_length_1.tab ' + out_dir + '/rsem_isoform_effective_length.tab', shell=True)
         
-#         sp.run('mv ' + out_dir + '/star_counts_1.tab ' + out_dir + '/star_counts.tab', shell=True)
+        sp.run('mv ' + out_dir + '/star_counts_1.tab.gz ' + out_dir + '/star_counts.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/rsem_gene_tpm_1.tab ' + out_dir + '/rsem_gene_tpm.tab', shell=True)
+        sp.run('mv ' + out_dir + '/rsem_gene_tpm_1.tab.gz ' + out_dir + '/rsem_gene_tpm.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/rsem_gene_counts_1.tab ' + out_dir + '/rsem_gene_counts.tab', shell=True)
+        sp.run('mv ' + out_dir + '/rsem_gene_counts_1.tab.gz ' + out_dir + '/rsem_gene_counts.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/effective_length_1.tab ' + out_dir + '/effective_length.tab', shell=True)
+        #sp.run('mv ' + out_dir + '/effective_length_1.tab ' + out_dir + '/effective_length.tab', shell=True)
         
-#         sp.run('mv ' + out_dir + '/star_meta_1.tab ' + out_dir + '/star_meta.tab', shell=True)
+        sp.run('mv ' + out_dir + '/star_meta_1.tab.gz ' + out_dir + '/star_meta.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/SE_counts_1.tab ' + out_dir + '/SE_counts.tab', shell=True)
+        sp.run('mv ' + out_dir + '/SE_counts_1.tab.gz ' + out_dir + '/SE_counts.tab.gz', shell=True)
         
-#         sp.run('mv ' + out_dir + '/constitutive_introns_1.tab ' + out_dir + '/constitutive_introns.tab', shell=True)
+        sp.run('mv ' + out_dir + '/constitutive_introns_1.tab.gz ' + out_dir + '/constitutive_introns.tab.gz', shell=True)
         
 #         ######
         
