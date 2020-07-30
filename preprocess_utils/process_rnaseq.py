@@ -91,7 +91,7 @@ if __name__ == '__main__':
         
     cells = sorted(os.listdir(alignment_dir))
     
-    cell_chunks = split_samples(cells, args.split_cells[0]) 
+    cell_chunks = split_samples(cells, args.split_cells) 
     
     print('Working on ' + str(args.split_cells[0]) + ' chunks')
     
