@@ -88,10 +88,11 @@ if __name__ == '__main__':
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
         
-        
-    cells = sorted(os.listdir(alignment_dir))
     
-    cell_chunks = split_samples(cells, args.split_cells) 
+    samples_all = sorted(os.listdir(alignment_dir))    
+    cells = [x.split('_')[0] for x in samples_all]
+    
+    cell_chunks = split_samples(samples_all, args.split_cells) 
     
     #print('Working on ' + str(args.split_cells) + ' chunks')
     
@@ -161,7 +162,7 @@ if __name__ == '__main__':
 
 
         for sample in tqdm(samples):
-            tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'genes.results'), 
+            tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'genes.results'+gz), 
                                 sep = '\t', index_col=0)
 
             sample_name = sample.split('_')[0]
@@ -172,7 +173,7 @@ if __name__ == '__main__':
 
 
             ###
-            iso_tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'isoforms.results'), 
+            iso_tabla = pd.read_csv(os.path.join(alignment_dir,sample, 'rsem_output/' + args.rsem_name[0] + 'isoforms.results'+gz), 
                                 sep = '\t', index_col=0)
 
             sample_name = sample.split('_')[0]
@@ -276,13 +277,13 @@ if __name__ == '__main__':
 
 
             SJ_counts_table_se = pd.DataFrame.from_dict(SJ_counts_se)
-            SJ_counts_table_se.index = samples
+            SJ_counts_table_se.index = [x.split('_')[0] for x in samples]
             SJ_counts_table_se.T.to_csv(out_dir + '/SE_counts_{counter_chunk}.tab.gz'.format(counter_chunk=str(counter_chunk)), 
                                         sep='\t', index=True, header=True, compression='gzip')
 
 
             SJ_counts_table_ci = pd.DataFrame.from_dict(SJ_counts_ci)
-            SJ_counts_table_ci.index = samples
+            SJ_counts_table_ci.index = [x.split('_')[0] for x in samples]
 
             SJ_counts_table_ci.T.to_csv(out_dir + '/constitutive_introns_{counter_chunk}.tab.gz'.format(counter_chunk=str(counter_chunk)), 
                                         sep='\t', index=True, header=True, compression='gzip')
@@ -351,7 +352,7 @@ if __name__ == '__main__':
         
         counter_chunk += 1
 
-    if args.split_cells[0] == 1:
+    if args.split_cells == 1:
         
         sp.run('mv ' + out_dir + '/rsem_isoform_psi_1.tab.gz ' + out_dir + '/rsem_isoform_psi.tab.gz', shell=True)
         
