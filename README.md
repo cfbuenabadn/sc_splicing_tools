@@ -1,4 +1,4 @@
-# Miscellaneous tools and annotations for alternative splicing
+# Miscellaneous tools for alternative splicing
 
 ## GTF2psix.py
 
