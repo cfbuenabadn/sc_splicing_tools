@@ -2,7 +2,7 @@
 
 ## GTF2psix.py
 
-This script creates a Psix-compatible annotation of cassette exons and constitutive introns directly from a GTF file. This annotation consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](http://github.com/lareaulab/psix/annotation/). 
+This script creates a Psix-compatible annotation of cassette exons and constitutive introns directly from a GTF file. This annotation consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](https://github.com/lareaulab/psix/tree/master/annotation). 
 
 The annotation is a table file with the following format:
 
