@@ -6,7 +6,7 @@ This script creates a Psix-compatible annotation of cassette exons and constitut
 
 The annotation is a table file with the following format:
 
-- | intron | event  |  gene
+name | intron | event  |  gene
 Rpn2_1_I1 | chr2:157318043-157320120:+ | Rpn2_1 | Rpn2
 Rpn2_1_I2 | chr2:157320197-157321742:+ | Rpn2_1 | Rpn2
 Rpn2_1_SE | chr2:157318043-157321742:+ | Rpn2_1 | Rpn2
