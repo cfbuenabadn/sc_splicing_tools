@@ -2,6 +2,8 @@
 
 ## GTF2psix.py
 
+Requires [gtfparse](https://pypi.org/project/gtfparse/) and [tqdm](https://tqdm.github.io/), in addition to common Anaconda modules NumPy, Pandas, Argparse and gzip.
+
 This script creates a Psix-compatible annotation of cassette exons and constitutive introns directly from a GTF file. This annotation consists of a table specifying the location (chromosome, start and end) of splice junctions. Splice junctions are annotated as supporting the inclusion of a cassette exon (\_I1 and \_I2), supporting its exclusion (\_SE), or constitutive (\_CI). You can download ready-to-use mouse (mm10) and human (hg38) annotations [here](https://github.com/lareaulab/psix/tree/master/annotation). 
 
 The annotation is a table file with the following format:
@@ -19,6 +21,9 @@ Each row corresponds to a splice junction or intron. The first column is a name 
 To automatically create an annotation from a GTF file, download ```GTF2psix.py``` and run as follows
 
 ```bash
-python GTF2psix.py --gtf annotation.gtf -o psix_annotation.tab
+python GTF2psix.py --gtf annotation.gtf -o psix_annotation
 ```
 
+Use the argument ```--gene_type``` to limit the annotation to a specific type of genes. E.g., for an annotation of protein coding genes only, use ```--gene_type protein_coding```.
+
+You can remove some chromosomes from the annotation using the argument ```--exclude_chromosome```. E.g., ```--exclude_chromosome chrM,chrY``` will exclude chrM and chrY from the annotation.
