@@ -65,34 +65,6 @@ def process_gtf(gtf_file, exclude):
     
     return gtf
 
-# def process_gtf(gtf_file):
-    
-#     print('Processing GTF file...')
-    
-#     awk_cmd = '''awk '$3=="exon" {print $1"\t"$4"\t"$5"\t"$10"\t"$6"\t"$7"\t"$12"\t"$14"\t"$18"\t"$20}' ''' + gtf_file
-#     awk_cmd += ''' | grep -v '_random' | grep -v '_alt' | grep -v 'chrUn' | grep -v 'chrM' > temp.exons.bed'''
-    
-    
-    
-#     sp.run(awk_cmd, shell=True)
-    
-#     gtf = pd.read_csv('temp.exons.bed', sep='\t', 
-#                   names = ['chrom', 'start', 'end', 'id', 'name', 'strand', 
-#                            'transcript', 'gene_type', 'gene', 'transcript_type'], 
-#                   index_col=None)
-    
-#     gtf.transcript = [x[:-1] for x in gtf.transcript]
-#     gtf.transcript = [x.split('.')[0] for x in gtf.transcript]
-#     gtf.gene = [x[:-1] for x in gtf.gene]
-#     gtf.gene_type = [x[:-1] for x in gtf.gene_type]
-#     gtf.transcript_type = [x[:-1] for x in gtf.transcript_type]
-        
-#     sp.run('rm temp.*', shell=True)
-    
-#     print('Finished processing GTF file')
-    
-#     return gtf
-
 
 def get_dirs(gtf_gene, gene):
     donor_dir = {}
