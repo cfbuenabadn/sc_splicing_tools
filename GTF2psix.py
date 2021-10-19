@@ -4,6 +4,9 @@ import subprocess as sp
 import time
 import argparse
 from tqdm import tqdm
+import gzip
+from gtfparse import read_gtf
+
 
 '''
 Process GTF annotation to create an index of cassette exons and constitutive introns compatible with Psix.
@@ -18,37 +21,77 @@ parser = argparse.ArgumentParser(description=description)
 
 parser.add_argument('--gtf', type=str, required=True, help='GTF file to convert.')
 
-parser.add_argument('-o', '--output_name', type=str, required=False, default='psix_annotation', help='Name for output file.')
+parser.add_argument('-o', '--output_name', type=str, required=False, default='psix_annotation', help='Name for output file. Psix will add a .tab.gz extension')
 
 parser.add_argument('-g', '--gene_type', type=str, required=False, default='all', help='Type of genes to include in annotation. E.g.: protein_coding.')
 
-def process_gtf(gtf_file):
+parser.add_argument('-e', '--exclude_chromosome', type=str, required=False, default='', help='Chromosomes to exclude, separated by comma. E.g.: chrX,chrY,chrM')
+
+def process_gtf(gtf_file, exclude):
     
     print('Processing GTF file...')
     
-    awk_cmd = '''awk '$3=="exon" {print $1"\t"$4"\t"$5"\t"$10"\t"$6"\t"$7"\t"$12"\t"$14"\t"$18"\t"$20}' ''' + gtf_file
-    awk_cmd += ''' | grep -v '_random' | grep -v '_alt' | grep -v 'chrUn' | grep -v 'chrM' > temp.exons.bed'''
+    exclude_chromosomes = exclude.split(',')
+    
+    gtf = read_gtf(gtf_file)
+    
+    try:
+    
+        try:
+            cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_type', 'gene_name', 'transcript_type']
+            gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
+            gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene_type', 'gene', 'transcript_type']
+        except:
+
+            try:
+                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_biotype', 'gene_name', 'transcript_biotype']
+                gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
+                gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene_type', 'gene', 'transcript_type']
+
+            except:
+                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_name']
+                gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
+                gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene']
+            
+    except:
+        raise Exception('Isufficient information to create annotation. transcript_id is needed to find cassette exons')
     
     
-    
-    sp.run(awk_cmd, shell=True)
-    
-    gtf = pd.read_csv('temp.exons.bed', sep='\t', 
-                  names = ['chrom', 'start', 'end', 'id', 'name', 'strand', 
-                           'transcript', 'gene_type', 'gene', 'transcript_type'], 
-                  index_col=None)
-    
-    gtf.transcript = [x[:-1] for x in gtf.transcript]
     gtf.transcript = [x.split('.')[0] for x in gtf.transcript]
-    gtf.gene = [x[:-1] for x in gtf.gene]
-    gtf.gene_type = [x[:-1] for x in gtf.gene_type]
-    gtf.transcript_type = [x[:-1] for x in gtf.transcript_type]
-        
-    sp.run('rm temp.*', shell=True)
+    
     
     print('Finished processing GTF file')
     
+    
     return gtf
+
+# def process_gtf(gtf_file):
+    
+#     print('Processing GTF file...')
+    
+#     awk_cmd = '''awk '$3=="exon" {print $1"\t"$4"\t"$5"\t"$10"\t"$6"\t"$7"\t"$12"\t"$14"\t"$18"\t"$20}' ''' + gtf_file
+#     awk_cmd += ''' | grep -v '_random' | grep -v '_alt' | grep -v 'chrUn' | grep -v 'chrM' > temp.exons.bed'''
+    
+    
+    
+#     sp.run(awk_cmd, shell=True)
+    
+#     gtf = pd.read_csv('temp.exons.bed', sep='\t', 
+#                   names = ['chrom', 'start', 'end', 'id', 'name', 'strand', 
+#                            'transcript', 'gene_type', 'gene', 'transcript_type'], 
+#                   index_col=None)
+    
+#     gtf.transcript = [x[:-1] for x in gtf.transcript]
+#     gtf.transcript = [x.split('.')[0] for x in gtf.transcript]
+#     gtf.gene = [x[:-1] for x in gtf.gene]
+#     gtf.gene_type = [x[:-1] for x in gtf.gene_type]
+#     gtf.transcript_type = [x[:-1] for x in gtf.transcript_type]
+        
+#     sp.run('rm temp.*', shell=True)
+    
+#     print('Finished processing GTF file')
+    
+#     return gtf
 
 
 def get_dirs(gtf_gene, gene):
@@ -67,7 +110,7 @@ def get_dirs(gtf_gene, gene):
         else:
 
             transcript_e = transcript + '.' + str(counter)
-            acceptor = str(int(row.start)-1)# in donor.keys():
+            acceptor = str(int(row.start)-1)
 
             if not acceptor in acceptor_dir.keys():
                 acceptor_dir.update({acceptor:{donor:[transcript_e]}})
@@ -98,7 +141,10 @@ def get_dirs(gtf_gene, gene):
     
 def get_const_introns(fh, gtf):
     
-    pc_gtf = gtf.loc[(gtf.transcript_type == 'protein_coding') & (gtf.gene_type == 'protein_coding')]
+    try:
+        pc_gtf = gtf.loc[(gtf.transcript_type == 'protein_coding') & (gtf.gene_type == 'protein_coding')]
+    except:
+        pc_gtf = gtf
     
     for i in tqdm(pc_gtf.groupby('gene'), leave=True, position=0):
         t_gtf = i[1]
@@ -167,12 +213,9 @@ def get_cassette_exons(gtf_gene, donor_dir, acceptor_dir):
     for donor in donor_dir.keys():                              # Parse all donors
         if len(donor_dir[donor].keys()) > 1:                    # Check for donors with more than one acceptor
             acceptors = sorted(donor_dir[donor].keys())         # Sort them, so that we go in order for acceptors
-            #print(donor)
 
             for n in range(1, len(acceptors)):                     # start with the 2nd acceptor; we assume no exon inside 1st intron
-                #upstream_introns = [donor_dir[donor][acceptors[y]] for y in range(n)] # select transcript ids that have first intron
-                #print(upstream_introns)
-                #for upstream_intron in upstream_introns:
+
                 i = acceptors[n]                                   # parse through acceptors
                 intron_list = donor_dir[donor][i]                  # introns that end in the nth acceptor
                 for intron in intron_list:                      # parsing through all the introns
@@ -181,11 +224,8 @@ def get_cassette_exons(gtf_gene, donor_dir, acceptor_dir):
 
                         if j == donor:
                             skipped_isoforms = [x for x in donor_dir[j][i] if x in acceptor_dir[i][j]] 
-                            #print('hola')
-                            #print(skipped_isoforms)
-                        if j != donor:                          # check one that is different
-                            #print(acceptor_dir[i][j])           #
 
+                        if j != donor:                          # check one that is different
 
                             cassette_isoforms = []
                             for acceptor_isoform in acceptor_dir[i][j]:
@@ -194,14 +234,10 @@ def get_cassette_exons(gtf_gene, donor_dir, acceptor_dir):
 
 
                                 upstream_intron = split_intron[0] + '.' + str(int(split_intron[1]) - 1)
-                                #print(upstream_intron)
-                                #print('si')
-                                ##print(donor_dir[donor][i])
 
                                 for acceptor_final in donor_dir[donor].keys():
 
                                     if upstream_intron in donor_dir[donor][acceptor_final]:
-                                        #print('no')
 
                                         I1 = donor + ':' + acceptor_final
                                         I2 = j + ':' + i
@@ -212,8 +248,13 @@ def get_cassette_exons(gtf_gene, donor_dir, acceptor_dir):
                                         cassette_isoforms.append(upstream_intron + ':' + acceptor_isoform)
 
                                         nmd = upstream_intron.split('.')[0]
+                                        
+                                        try:
 
-                                        nmd_type = gtf_gene.loc[gtf_gene.transcript == nmd].transcript_type.unique()[0]
+                                            nmd_type = gtf_gene.loc[gtf_gene.transcript == nmd].transcript_type.unique()[0]
+                                            
+                                        except:
+                                            nmd_type = 'notype'
 
                                         event_key = '|'.join(evento)
 
@@ -247,7 +288,7 @@ def process_gene_annotation(gtf, gene):
     other_counts = 1
     
     for event in event_sorted:
-        if 'protein_coding' in ase_dir[event]:
+        if ('protein_coding' in ase_dir[event]) or ('notype' in ase_dir[event]):
             event_name = gene + '_' + str(pc_counts)
             pc_counts += 1
         elif 'nonsense_mediated_decay' in ase_dir[event]:
@@ -273,12 +314,6 @@ def process_gene_annotation(gtf, gene):
         se_line = '\t'.join([event_name + '_SE', intron_loc, event_name, gene]) + '\n'
         gene_events += se_line
         
-#         i2_start, i2_end = event.split('|')[1].split(':')
-#         gene_events += '\t'.join([chrom, i2_start, i2_end, event_name + '_I2', event_name, strand]) + '\n'
-        
-#         se_start, se_end = event.split('|')[2].split(':')
-#         gene_events += '\t'.join([chrom, se_start, se_end, event_name + '_SE', event_name, strand]) + '\n'
-        
 
     return gene_events
 
@@ -287,13 +322,19 @@ def write_annotation(gtf, out_file, gene_type = 'protein_coding'):
     
     if gene_type != 'all':
         print('Working on ' + gene_type + ' genes')
-        gene_list = gtf.loc[gtf.gene_type == gene_type].gene.unique
+        
+        try:
+            gene_list = gtf.loc[gtf.gene_type == gene_type].gene.unique
+        except:
+            raise Exception(
+                'Gene type not found in GTF file. Please make sure that gene_type annotation exists, or use "--gene_type all" instead.'
+            )
         
     else:
         print('Working on all genes')
         gene_list = gtf.gene.unique()
         
-    fh = open(out_file + '.tab', 'w')
+    fh = gzip.open(out_file + '.tab.gz', 'wt')
     
     gene_counts = 1
     total_genes = len(gene_list)
@@ -304,9 +345,6 @@ def write_annotation(gtf, out_file, gene_type = 'protein_coding'):
         rows = process_gene_annotation(gtf, gene)
         
         fh.write(rows)
-        
-#         if gene_counts%100 == 0:
-#             print('Processed ' + str(gene_counts)+'/'+str(total_genes))
             
         gene_counts += 1
         
@@ -323,8 +361,9 @@ if __name__ == '__main__':
     gtf_file = args.gtf
     output_name = args.output_name
     gene_type = args.gene_type
+    exclude = args.exclude_chromosome
         
-    gtf = process_gtf(gtf_file)
+    gtf = process_gtf(gtf_file, exclude)
     
     write_annotation(gtf, output_name, gene_type)
 
