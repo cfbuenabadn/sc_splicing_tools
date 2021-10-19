@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-import subprocess as sp
-import time
 import argparse
 from tqdm import tqdm
 import gzip
