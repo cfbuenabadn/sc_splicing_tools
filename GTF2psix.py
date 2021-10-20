@@ -306,6 +306,8 @@ def write_annotation(gtf, out_file, gene_type = 'protein_coding'):
         
     fh = gzip.open(out_file + '.tab.gz', 'wt')
     
+    fh.write('\t'.join(['', 'intron', 'event', 'gene']) + '\n')
+    
     gene_counts = 1
     total_genes = len(gene_list)
     
