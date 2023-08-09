@@ -23,12 +23,18 @@ parser.add_argument('-o', '--output_name', type=str, required=False, default='ps
 
 parser.add_argument('-g', '--gene_type', type=str, required=False, default='all', help='Type of genes to include in annotation. E.g.: protein_coding.')
 
+parser.add_argument('-n', '--gene_name', type=str, required=False, default='gene_id', help='Which gene identifier should be used to create the annotation. Use "gene_id" (if available in your gtf file) to create annotation using ensembl IDs. Use "gene_name" to create annotation with gene symbols. If none of these tags are present in your GTF file, you should indicate the tag in the GTF that you want to use.')
+
+parser.add_argument('-trim', '--no_trim_id', action='store_true', required=False, help='Indicate if the gene ID should be trimmed. Some annotations (such as Gencode) have the following format for their ensembl id: "ENS0000001234.1". Passing this argument will trim the id in the annotation to "ENS0000001234". The default is to trim the annotation. If the annotation doesn't need trimming, it won't have an effect.')
+
+parser.add_argument('-gt', '--gene_type_tag', type=str, required=False, default='gene_type', help='Indicate the tag to be used for gene type. By default we use "gene_type". Some annotations use "gene_biotype".')
+
+parser.add_argument('-tt', '--transcript_type_tag', type=str, required=False, default='transcript_type', help='Indicate the tag to be used for transcript type. By default we use "transcript_type". Some annotations use "transcript_biotype".')
+
 parser.add_argument('-e', '--exclude_chromosome', type=str, required=False, default='', help='Chromosomes to exclude, separated by comma. E.g.: chrX,chrY,chrM')
 
-def process_gtf(gtf_file, exclude, gene_name = 'gene_name'):
+def process_gtf(gtf_file, exclude, gene_name, no_trim_id, gene_type_tag, transcript_type_tag):
 
-    assert (gene_name == 'gene_name') or (gene_name == 'gene_id')
-    
     print('Processing GTF file...')
     
     exclude_chromosomes = exclude.split(',')
@@ -38,24 +44,19 @@ def process_gtf(gtf_file, exclude, gene_name = 'gene_name'):
     try:
     
         try:
-            cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_type', gene_name, 'transcript_type']
+            cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', gene_type_tag, gene_name, transcript_type_tag]
             gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
             gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene_type', 'gene', 'transcript_type']
         except:
-
-            try:
-                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_biotype', gene_name, 'transcript_biotype']
-                gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
-                gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene_type', 'gene', 'transcript_type']
-
-            except:
-                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', gene_name]
-                gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
-                gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene']
+            cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', gene_name]
+            gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
+            gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene']
             
     except:
-        raise Exception('Isufficient information to create annotation. transcript_id is needed to find cassette exons')
+        raise Exception('Isufficient information to create annotation. transcript_id is needed to find cassette exons.')
     
+    if not no_trim_id:
+        gtf['gene'] = gtf.gene.str.replace(r'\.\d+$', '', regex=True)
     
     gtf.transcript = [x.split('.')[0] for x in gtf.transcript]
     
@@ -255,18 +256,25 @@ def process_gene_annotation(gtf, gene):
     event_sorted = sorted(ase_dir.keys())
     
     gene_events = ''
-    
+
+    notype_counts = 1
     pc_counts = 1
     nmd_counts = 1
     other_counts = 1
     
     for event in event_sorted:
-        if ('protein_coding' in ase_dir[event]) or ('notype' in ase_dir[event]):
+        if 'protein_coding' in ase_dir[event]:
             event_name = gene + '_ProteinCoding_' + str(pc_counts)
             pc_counts += 1
         elif 'nonsense_mediated_decay' in ase_dir[event]:
-            event_name = gene + '_nmdSE_' + str(nmd_counts)
+            event_name = gene + '_NMD_' + str(nmd_counts)
             nmd_counts += 1
+        ### modify the script here if you're interested in other tags
+        ### elif 'your_tag' in ase_dir[event]:
+        ###    event_name = gene + '_YOURTAG_' + str(yourtag_counts)
+        elif 'notype' in ase_dir[event]:
+            event_name = gene + '_UNKNOWNTYPE_' + str(notype_counts)
+            notype_counts += 1
         else:
             event_name = gene + '_other_' + str(other_counts)
             other_counts += 1
@@ -336,9 +344,13 @@ if __name__ == '__main__':
     gtf_file = args.gtf
     output_name = args.output_name
     gene_type = args.gene_type
+    gene_name = args.gene_name
+    no_trim_id = args.no_trim_id
+    gene_type_tag = args.gene_type_tag
+    transcript_type_tag = args.transcript_type_tag
     exclude = args.exclude_chromosome
         
-    gtf = process_gtf(gtf_file, exclude)
+    gtf = process_gtf(gtf_file, exclude, gene_name, no_trim_id, gene_type_tag, transcript_type_tag)
     
     write_annotation(gtf, output_name, gene_type)
 
