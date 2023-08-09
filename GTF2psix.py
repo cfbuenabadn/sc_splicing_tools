@@ -294,7 +294,7 @@ def write_annotation(gtf, out_file, gene_type = 'protein_coding'):
         print('Working on ' + gene_type + ' genes')
         
         try:
-            gene_list = gtf.loc[gtf.gene_type == gene_type].gene.unique
+            gene_list = gtf.loc[gtf.gene_type == gene_type].gene.unique()
         except:
             raise Exception(
                 'Gene type not found in GTF file. Please make sure that gene_type annotation exists, or use "--gene_type all" instead.'
