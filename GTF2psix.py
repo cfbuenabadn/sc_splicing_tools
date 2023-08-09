@@ -25,7 +25,7 @@ parser.add_argument('-g', '--gene_type', type=str, required=False, default='all'
 
 parser.add_argument('-n', '--gene_name', type=str, required=False, default='gene_id', help='Which gene identifier should be used to create the annotation. Use "gene_id" (if available in your gtf file) to create annotation using ensembl IDs. Use "gene_name" to create annotation with gene symbols. If none of these tags are present in your GTF file, you should indicate the tag in the GTF that you want to use.')
 
-parser.add_argument('-trim', '--no_trim_id', action='store_true', required=False, help='Indicate if the gene ID should be trimmed. Some annotations (such as Gencode) have the following format for their ensembl id: "ENS0000001234.1". Passing this argument will trim the id in the annotation to "ENS0000001234". The default is to trim the annotation. If the annotation doesn't need trimming, it won't have an effect.')
+parser.add_argument('-trim', '--no_trim_id', action='store_true', required=False, help='Indicate if the gene ID should be trimmed. Some annotations (such as Gencode) have the following format for their ensembl id: "ENS0000001234.1". Passing this argument will trim the id in the annotation to "ENS0000001234". The default is to trim the annotation. If the annotation does not need trimming, it will not have an effect.')
 
 parser.add_argument('-gt', '--gene_type_tag', type=str, required=False, default='gene_type', help='Indicate the tag to be used for gene type. By default we use "gene_type". Some annotations use "gene_biotype".')
 
