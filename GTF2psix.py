@@ -25,7 +25,9 @@ parser.add_argument('-g', '--gene_type', type=str, required=False, default='all'
 
 parser.add_argument('-e', '--exclude_chromosome', type=str, required=False, default='', help='Chromosomes to exclude, separated by comma. E.g.: chrX,chrY,chrM')
 
-def process_gtf(gtf_file, exclude):
+def process_gtf(gtf_file, exclude, gene_name = 'gene_name'):
+
+    assert (gene_name == 'gene_name') or (gene_name == 'gene_id')
     
     print('Processing GTF file...')
     
@@ -36,18 +38,18 @@ def process_gtf(gtf_file, exclude):
     try:
     
         try:
-            cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_type', 'gene_name', 'transcript_type']
+            cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_type', gene_name, 'transcript_type']
             gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
             gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene_type', 'gene', 'transcript_type']
         except:
 
             try:
-                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_biotype', 'gene_name', 'transcript_biotype']
+                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_biotype', gene_name, 'transcript_biotype']
                 gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
                 gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene_type', 'gene', 'transcript_type']
 
             except:
-                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', 'gene_name']
+                cols = ['seqname', 'start', 'end', 'strand', 'transcript_id', gene_name]
                 gtf = gtf.loc[pd.Series([x not in exclude_chromosomes for x in gtf.seqname]) & (gtf.feature == 'exon'), cols]
                 gtf.columns = ['chrom', 'start', 'end', 'strand', 'transcript', 'gene']
             
@@ -59,7 +61,8 @@ def process_gtf(gtf_file, exclude):
     
     
     print('Finished processing GTF file')
-    
+
+    gtf = gtf.loc[gtf.gene != '']
     
     return gtf
 
@@ -259,7 +262,7 @@ def process_gene_annotation(gtf, gene):
     
     for event in event_sorted:
         if ('protein_coding' in ase_dir[event]) or ('notype' in ase_dir[event]):
-            event_name = gene + '_' + str(pc_counts)
+            event_name = gene + '_ProteinCoding_' + str(pc_counts)
             pc_counts += 1
         elif 'nonsense_mediated_decay' in ase_dir[event]:
             event_name = gene + '_nmdSE_' + str(nmd_counts)
