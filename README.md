@@ -30,7 +30,13 @@ To automatically create an annotation from a GTF file, download ```GTF2psix.py``
 python GTF2psix.py --gtf annotation.gtf -o psix_annotation
 ```
 
-### Optional
+### Optional arguments
+
+```--gene_name``` specifies the tag for gene names to use in the GTF file. For example ```--gene_name gene_name``` will use the ```gene_name``` tag from the 9th column of the GTF file. The default is ```gene_id```.
+
+```--gene_type_tag```. Some GTF files have different tags for the gene types. E.g., ```gene_type``` or ```gene_biotype```. Specify the tag with this option. Default: ```gene_type```.
+
+```--transcript_type_tag```. Some GTF files have different tags for the transcript types. E.g., ```transcript_type``` or ```transcript_biotype```. Specify the tag with this option. Default: ```transcript_type```.
 
 Use the argument ```--gene_type``` to limit the annotation to a specific type of genes. E.g., for an annotation of protein coding genes only, use ```--gene_type protein_coding```.
 
