@@ -14,17 +14,19 @@ The annotation is a table file with the following format:
 
 name | intron | event  |  gene
 ---- | ---- | ---- | ---- 
-Rpn2_1_I1 | chr2:157318043-157320120:+ | Rpn2_1 | Rpn2
-Rpn2_1_I2 | chr2:157320197-157321742:+ | Rpn2_1 | Rpn2
-Rpn2_1_SE | chr2:157318043-157321742:+ | Rpn2_1 | Rpn2
-Rpn2_2_CI | chr2:157290713-157294152:+ | Rpn2_2 | Rpn2
+ENSG00000157881_NMD_1_I1 | 1:2514467-2515257:- | ENSG00000157881_NMD_1 | ENSG00000157881
+ENSG00000157881_NMD_1_I2 | 1:2515402-2515561:- | ENSG00000157881_NMD_1 | ENSG00000157881
+ENSG00000157881_NMD_1_SE | 1:2514467-2515561:- | ENSG00000157881_NMD_1 | ENSG00000157881
+ENSG00000157881_ProteinCoding_1_I1 | 1:2521316-2521717:- | ENSG00000157881_ProteinCoding_1 | ENSG00000157881
+ENSG00000157881_ProteinCoding_1_I2 | 1:2521801-2526463:- | ENSG00000157881_ProteinCoding_1 | ENSG00000157881
+ENSG00000157881_ProteinCoding_1_SE | 1:2521316-2526463:- | ENSG00000157881_ProteinCoding_1 | ENSG00000157881
 ... | ... | ... | ...
 
-Each row corresponds to a splice junction or intron. The first column is a name assigned to the splice junction, that is based on the name of the gene that contains the removed intron, and whether it supports the inclusion of a cassette exon (\_I1 and \_I2), supports its exclusion (\_SE), or it is a constitutive intron (\_CI). The second column are the intron coordinates in the genome. The third column has the name of the splicing element: for example, Rpn2_1 is a cassette exon, and it is formed by three introns: Rpn2_1_I1, Rpn2_1_I2 and Rpn2_1_SE. The fourth column contains the gene name.
+Each row corresponds to a splice junction or intron. The first column is a name assigned to the splice junction, that is based on the name of the gene that contains the removed intron, and whether it supports the inclusion of a cassette exon (\_I1 and \_I2), supports its exclusion (\_SE), or it is a constitutive intron (\_CI). The second column are the intron coordinates in the genome. The third column has the name of the splicing element: for example, ENSG00000157881_ProteinCoding_1 is a protein coding cassette exon, and it is formed by three introns: ENSG00000157881_ProteinCoding_1_I1, ENSG00000157881_ProteinCoding_1_I2 and ENSG00000157881_ProteinCoding_1_SE. The fourth column contains the gene name.
 
 ### Runing GTF2psix
 
-To automatically create an annotation from a GTF file, download ```GTF2psix.py``` and run as follows
+To create an annotation from a GTF file, download ```GTF2psix.py``` and run as follows
 
 ```bash
 python GTF2psix.py --gtf annotation.gtf -o psix_annotation
